@@ -1,52 +1,44 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Utente } from "../types/Utente";
 
 interface AuthState {
   user: Utente | null;
   loading: boolean;
   isAuthenticated: boolean;
+  username: string | null;
+  role: string[] | null;
 }
 
 const initialState: AuthState = {
   user: null,
   loading: false,
   isAuthenticated: false,
+  username: null,
+  role: null,
 };
-
-export const loginUser = createAsyncThunk(
-  "auth/login",
-  async (credentials: { email: string; password: string }) => {
-    const response = await axios.post<Utente>(
-      "https://localhost:7224/api/Auth/login",
-      credentials
-    );
-    return response.data;
-  }
-);
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginSuccess(state, action: PayloadAction<Utente>) {
+    loginSuccess(state, action: PayloadAction<Utente & { username: string }>) {
       state.user = action.payload;
+      state.username = action.payload.username;
+      state.role = action.payload.role || null;
+      state.isAuthenticated = true;
+      state.loading = false;
+
+      // Optional: store user locally if needed
+      localStorage.setItem("user", JSON.stringify(action.payload));
     },
     logout(state) {
       state.user = null;
+      state.username = null;
+      state.role = null;
       state.isAuthenticated = false;
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(loginUser.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<Utente>) => {
-        state.loading = false;
-        state.user = action.payload;
-        state.isAuthenticated = true;
-      });
   },
 });
 

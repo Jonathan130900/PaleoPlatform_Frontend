@@ -2,6 +2,6 @@ export interface Utente {
   id: number;
   email: string;
   username: string;
-  roles: string[];
+  role: string[];
   token: string;
 }

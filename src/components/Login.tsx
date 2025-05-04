@@ -1,6 +1,6 @@
 import React, { useState, FormEvent } from "react";
 import { useAppDispatch } from "../redux/hooks";
-import { loginUser } from "../redux/authSlice";
+import { loginUtente } from "../actions/authAction"; // ✅ use correct path
 
 const Login: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -9,12 +9,16 @@ const Login: React.FC = () => {
 
   const handleLogin = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(loginUser({ email, password }));
+    dispatch(loginUtente(email, password)); // ✅ your custom thunk
   };
 
   return (
     <form onSubmit={handleLogin}>
-      <input value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
       <input
         type="password"
         value={password}
