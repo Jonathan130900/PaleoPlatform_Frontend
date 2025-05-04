@@ -22,7 +22,7 @@ export const loginUtente =
 
       console.log("Decoded token:", { username, decodedEmail, role, id });
 
-      dispatch(loginSuccess({ ...utente, username }));
+      dispatch(loginSuccess({ ...utente, username, token }));
     } catch (error) {
       console.error("Login error:", error);
     }

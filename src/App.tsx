@@ -18,13 +18,24 @@ const App: React.FC = () => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      const user: Utente = JSON.parse(storedUser);
-      const decoded: DecodedToken = jwtDecode(user.token);
-      const isExpired = decoded.exp * 1000 < Date.now();
+      try {
+        const user: Utente = JSON.parse(storedUser);
 
-      if (!isExpired) {
-        dispatch(loginSuccess(user));
-      } else {
+        // Ensure user.token is a valid non-empty string
+        if (typeof user.token === "string" && user.token.trim() !== "") {
+          const decoded: DecodedToken = jwtDecode(user.token);
+          const isExpired = decoded.exp * 1000 < Date.now();
+
+          if (!isExpired) {
+            dispatch(loginSuccess(user));
+          } else {
+            localStorage.removeItem("user");
+          }
+        } else {
+          localStorage.removeItem("user");
+        }
+      } catch (err) {
+        console.error("Failed to parse or decode token", err);
         localStorage.removeItem("user");
       }
     }

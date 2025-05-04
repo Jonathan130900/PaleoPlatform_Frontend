@@ -20,7 +20,16 @@ const ArticoliList: React.FC = () => {
       ) : (
         <ul>
           {articoli.map((articolo: Articolo) => (
-            <li key={articolo.id}>{articolo.titolo}</li>
+            <li key={articolo.id}>
+              <h3>{articolo.titolo}</h3>
+              {articolo.copertinaUrl && (
+                <img
+                  src={`https://localhost:7224${articolo.copertinaUrl}`}
+                  alt="Copertina"
+                />
+              )}
+              <p>{articolo.contenuto.slice(0, 100)}...</p>
+            </li>
           ))}
         </ul>
       )}
