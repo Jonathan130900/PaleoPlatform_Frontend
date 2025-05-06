@@ -5,11 +5,13 @@ import { Articolo } from "../types/Articolo";
 interface ArticoliState {
   articoli: Articolo[];
   loading: boolean;
+  error: string | null;
 }
 
 const initialState: ArticoliState = {
   articoli: [],
   loading: false,
+  error: null,
 };
 
 export const fetchArticoli = createAsyncThunk("articoli/fetch", async () => {

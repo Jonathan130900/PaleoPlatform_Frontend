@@ -1,4 +1,3 @@
-// utils/parseJwt.ts
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken } from "../types/DecodedToken";
 

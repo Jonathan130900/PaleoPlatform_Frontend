@@ -1,7 +1,15 @@
 import axios from "axios";
 
+const apiBaseURL = "https://localhost:7224/api";
+const staticBaseURL = "https://localhost:7224";
+
 const axiosInstance = axios.create({
-  baseURL: "https://localhost:7224/api",
+  baseURL: apiBaseURL,
+});
+
+export const staticFilesInstance = axios.create({
+  baseURL: staticBaseURL,
+  responseType: "blob",
 });
 
 axiosInstance.interceptors.request.use((config) => {

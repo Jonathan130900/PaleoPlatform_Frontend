@@ -16,12 +16,15 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    console.log("Current environment:", import.meta.env);
+  }, []);
+
+  useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         const user: Utente = JSON.parse(storedUser);
 
-        // Ensure user.token is a valid non-empty string
         if (typeof user.token === "string" && user.token.trim() !== "") {
           const decoded: DecodedToken = jwtDecode(user.token);
           const isExpired = decoded.exp * 1000 < Date.now();
@@ -54,6 +57,9 @@ const App: React.FC = () => {
           <Route element={<PrivateRoute />}>
             <Route path="/articoli" element={<ArticoliList />} />
           </Route>
+
+          {/* Catch-all for static files */}
+          <Route path="/uploads/*" element={null} />
         </Routes>
       </div>
     </div>
