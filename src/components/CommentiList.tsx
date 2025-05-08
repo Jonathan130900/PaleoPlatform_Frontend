@@ -25,9 +25,7 @@ const CommentiList = ({ articoloId }: { articoloId: number }) => {
     <div className="mt-4">
       <CommentiForm articoloId={articoloId} onSuccess={handleNewComment} />
       {topLevelComments.length === 0 ? (
-        <p className="text-muted">
-          Nessun commento. Sii il primo a commentare!
-        </p>
+        <p className="text-muted">Nessun commento. Commenta per primo!</p>
       ) : (
         <div className="mt-3">
           {topLevelComments.map((comment) => (

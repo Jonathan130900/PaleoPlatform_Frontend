@@ -7,7 +7,9 @@ import {
   BiDownvote,
   BiSolidDownvote,
 } from "react-icons/bi";
-import { getAuthToken, refreshToken } from "../actions/authAction";
+import { getAuthToken } from "../actions/authAction";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../redux/store";
 
 interface CommentiItemProps {
   comment: Commento;
@@ -24,6 +26,7 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
+  useDispatch<AppDispatch>();
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +35,7 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
     try {
       const token = getAuthToken();
       if (!token) {
-        toast.error("Please login to reply");
+        toast.error("Accedi per commentare.");
         return;
       }
 
@@ -53,11 +56,11 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
         setReplyText("");
         setShowReplyBox(false);
       } else if (response.status === 401) {
-        const newToken = await refreshToken();
-        if (newToken) {
-          return handleReplySubmit(e);
+        if (!getAuthToken()) {
+          window.location.href = "/login";
+          return;
         }
-        toast.error("Session expired. Please login again.");
+        toast.error("Sessione scaduta. Accedi nuovamente.");
       } else {
         const errorData = await response.json();
         toast.error(errorData.message || "Errore durante l'invio");
@@ -76,7 +79,7 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
     try {
       const token = getAuthToken();
       if (!token) {
-        toast.error("Please login to vote");
+        toast.error("Accedi per votare");
         return;
       }
 
@@ -95,11 +98,11 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
       if (response.ok) {
         toast.success("Voto registrato!");
       } else if (response.status === 401) {
-        const newToken = await refreshToken();
-        if (newToken) {
-          return handleVote(isUpvote);
+        if (!getAuthToken()) {
+          window.location.href = "/login";
+          return;
         }
-        toast.error("Session expired. Please login again.");
+        toast.error("Sessione scaduta. Accedi nuovamente.");
       } else {
         const errorData = await response.json();
         toast.error(errorData.message || "Errore durante il voto");

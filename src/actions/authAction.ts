@@ -1,30 +1,14 @@
 import { AppDispatch } from "../redux/store";
-import { loginSuccess, logout as logoutAction } from "../redux/authSlice";
+import { loginSuccess } from "../redux/authSlice";
 import axiosInstance from "../axiosInstance";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken } from "../types/DecodedToken";
 import { Commento } from "../types/Commento";
 
-// Utility function to get auth token
 export const getAuthToken = (): string | null => {
-  return localStorage.getItem("jwtToken") || localStorage.getItem("token");
+  return localStorage.getItem("jwtToken");
 };
 
-// Fetch comments for an article
-export const fetchComments = async (
-  articoloId: number
-): Promise<Commento[]> => {
-  const token = getAuthToken();
-  const response = await fetch(`/api/Commenti/articolo/${articoloId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!response.ok) throw new Error("Failed to fetch comments");
-  return await response.json();
-};
-
-// Login action
 export const loginUtente =
   (email: string, password: string) => async (dispatch: AppDispatch) => {
     try {
@@ -32,13 +16,11 @@ export const loginUtente =
         email,
         password,
       });
-      const { token, utente } = response.data;
-      const decoded = jwtDecode<DecodedToken>(token);
+      const { token } = response.data;
 
-      // Store tokens
       localStorage.setItem("jwtToken", token);
-      localStorage.setItem("token", token);
 
+      const decoded = jwtDecode<DecodedToken>(token);
       dispatch(
         loginSuccess({
           token,
@@ -50,44 +32,43 @@ export const loginUtente =
           username:
             decoded[
               "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
-            ] ||
-            utente.username ||
-            "User",
+            ],
           email:
             decoded[
               "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-            ] || utente.email,
-          role: [
-            decoded[
-              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
             ],
-          ],
-          ...utente,
+          role: decoded[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ] || ["user"],
         })
       );
+
+      return true;
     } catch (error) {
       console.error("Login error:", error);
       throw error;
     }
   };
 
-// Logout action
-export const logout = () => (dispatch: AppDispatch) => {
-  localStorage.removeItem("jwtToken");
-  localStorage.removeItem("token");
-  dispatch(logoutAction());
-};
-
-// Refresh token
-export const refreshToken = async (): Promise<string | null> => {
+export const logout = () => async (dispatch: AppDispatch) => {
   try {
-    const response = await axiosInstance.post("/Auth/refresh-token");
-    const { token } = response.data;
-    localStorage.setItem("jwtToken", token);
-    localStorage.setItem("token", token);
-    return token;
+    const token = getAuthToken();
+    if (token) {
+      await axiosInstance.post("/Auth/logout", null, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    }
   } catch (error) {
-    console.error("Token refresh failed:", error);
-    return null;
+    console.error("Logout error:", error);
+  } finally {
+    localStorage.removeItem("jwtToken");
+    dispatch({ type: "auth/logout" });
+    window.location.href = "/login";
   }
 };
+
+export const fetchComments =
+  (postId: number) => async (): Promise<Commento[]> => {
+    const response = await axiosInstance.get(`/Commenti/articolo/${postId}`);
+    return response.data;
+  };

@@ -1,89 +1,95 @@
-import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "../redux/store";
 import { fetchArticoli } from "../redux/articoloSlice";
-import { Articolo } from "../types/Articolo";
 
-const ArticoliList: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const articoli = useAppSelector((state) => state.articoli.articoli);
-  const loading = useAppSelector((state) => state.articoli.loading);
-  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+const ArticoliList = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { articoli, loading, error } = useSelector((state: RootState) => ({
+    articoli: state.articoli.articoli,
+    loading: state.articoli.loading,
+    error: state.articoli.error,
+  }));
 
   useEffect(() => {
     dispatch(fetchArticoli());
   }, [dispatch]);
 
-  const handleImageError = (
-    e: React.SyntheticEvent<HTMLImageElement>,
-    articoloId: number
-  ) => {
-    const target = e.target as HTMLImageElement;
-    console.error("Image failed to load:", target.src);
-    setImageErrors((prev) => ({ ...prev, [articoloId]: true }));
+  if (loading) {
+    return (
+      <div className="container mt-4">
+        <p>Caricamento articoli...</p>
+      </div>
+    );
+  }
 
-    // Debug fetch
-    fetch(target.src)
-      .then((res) => {
-        console.log("HTTP Status:", res.status);
-        return res.text();
-      })
-      .then((text) => {
-        console.log(
-          "Response content (first 100 chars):",
-          text.substring(0, 100)
-        );
-      })
-      .catch((err) => console.error("Fetch error:", err));
-  };
+  if (error) {
+    return (
+      <div className="container mt-4">
+        <p>Errore: {error}</p>
+      </div>
+    );
+  }
+
+  if (articoli.length === 0) {
+    return (
+      <div className="container mt-4">
+        <p>Nessun articolo disponibile.</p>
+      </div>
+    );
+  }
+
+  // Sort articles by date (newest first)
+  const sortedArticoli = [...articoli].sort(
+    (a, b) =>
+      new Date(b.dataPubblicazione).getTime() -
+      new Date(a.dataPubblicazione).getTime()
+  );
 
   return (
-    <div>
-      <h2>Lista Articoli</h2>
-      {loading ? (
-        <p>Caricamento...</p>
-      ) : (
-        <ul>
-          {articoli.map((articolo: Articolo) => {
-            const imageUrl = `http://localhost:7224${articolo.copertinaUrl}`;
-            const hasError = imageErrors[articolo.id] || !articolo.copertinaUrl;
-
-            return (
-              <li key={articolo.id}>
-                <h3>{articolo.titolo}</h3>
-                <div style={{ margin: "10px 0" }}>
-                  <small style={{ color: "gray" }}>DEBUG: {imageUrl}</small>
-                </div>
-                {!hasError ? (
-                  <img
-                    src={imageUrl}
-                    onError={(e) => handleImageError(e, articolo.id)}
-                    alt={articolo.titolo}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      border: "2px solid red",
-                      padding: "10px",
-                      color: "red",
-                    }}
+    <div className="container mt-4">
+      <h1 className="mb-4">Tutti gli Articoli</h1>
+      <div className="d-flex flex-column gap-4">
+        {sortedArticoli.map((articolo) => (
+          <div key={articolo.id} className="card">
+            <div className="row g-0">
+              <div className="col-md-4">
+                <img
+                  src={articolo.copertinaUrl}
+                  alt={articolo.titolo}
+                  className="img-fluid rounded-start"
+                  style={{ height: "100%", objectFit: "cover" }}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = "/placeholder.jpg";
+                  }}
+                />
+              </div>
+              <div className="col-md-8">
+                <div className="card-body">
+                  <h5 className="card-title">{articolo.titolo}</h5>
+                  <p className="text-muted small">
+                    Pubblicato il{" "}
+                    {new Date(articolo.dataPubblicazione).toLocaleDateString()}{" "}
+                    da <strong>{articolo.autoreUserName}</strong>
+                  </p>
+                  <p className="card-text">
+                    {articolo.contenuto.substring(0, 200)}...
+                  </p>
+                  <Link
+                    to={`/articolo/${articolo.id}`}
+                    className="btn btn-primary"
                   >
-                    Image failed to load.{" "}
-                    <a
-                      href={imageUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ color: "blue" }}
-                    >
-                      Try direct link
-                    </a>
-                  </div>
-                )}
-                <p>{articolo.contenuto.slice(0, 100)}...</p>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                    Leggi di più
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

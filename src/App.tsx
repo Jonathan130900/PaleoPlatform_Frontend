@@ -1,120 +1,80 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { jwtDecode } from "jwt-decode";
 import { ToastContainer } from "react-toastify";
-import { refreshToken, getAuthToken } from "./actions/authAction";
-import { loginSuccess } from "./redux/authSlice";
-import { DecodedToken } from "./types/DecodedToken";
+import { jwtDecode } from "jwt-decode";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Login from "./components/Login";
 import ArticoliList from "./components/ArticoliList";
 import ArticoloDetail from "./components/ArticoloDetail";
-import PrivateRoute from "./components/PrivateRoute";
+import NotFound from "./components/NotFound";
+import MainLayout from "./components/MainLayout";
+import Register from "./components/Register";
+import Footer from "./components/Footer";
+import { loginSuccess } from "./redux/authSlice";
+import { DecodedToken } from "./types/DecodedToken";
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = getAuthToken();
-      if (!token) return;
-
+    const token = localStorage.getItem("jwtToken");
+    if (token) {
       try {
-        const decoded = jwtDecode<DecodedToken>(token);
-        const isExpired = decoded.exp * 1000 < Date.now();
-
-        if (!isExpired) {
-          dispatch(
-            loginSuccess({
-              token,
-              id: Number(
-                decoded[
-                  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-                ]
-              ),
-              username:
-                decoded[
-                  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
-                ],
-              email:
-                decoded[
-                  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-                ],
-              role:
-                typeof decoded[
-                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                ] === "string"
-                  ? [
-                      decoded[
-                        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                      ],
-                    ]
-                  : decoded[
-                      "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                    ] || ["user"],
-            })
-          );
-        } else {
-          const newToken = await refreshToken();
-          if (newToken) {
-            const newDecoded = jwtDecode<DecodedToken>(newToken);
-            dispatch(
-              loginSuccess({
-                token: newToken,
-                id: Number(
-                  newDecoded[
-                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-                  ]
-                ),
-                username:
-                  newDecoded[
-                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
-                  ],
-                email:
-                  newDecoded[
-                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-                  ],
-                role:
-                  typeof newDecoded[
-                    "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                  ] === "string"
-                    ? [
-                        newDecoded[
-                          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                        ],
-                      ]
-                    : newDecoded[
-                        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                      ] || ["user"],
-              })
-            );
-          }
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err);
+        const decoded = jwtDecode(token) as DecodedToken;
+        dispatch(
+          loginSuccess({
+            token,
+            id: Number(
+              decoded[
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+              ]
+            ),
+            username:
+              decoded[
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+              ],
+            email:
+              decoded[
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+              ],
+            role: decoded[
+              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            ] || ["user"],
+          })
+        );
+      } catch (error) {
         localStorage.removeItem("jwtToken");
-        localStorage.removeItem("token");
       }
-    };
-
-    checkAuth();
+    }
   }, [dispatch]);
 
   return (
-    <div>
-      <Navbar />
-      <div className="container mt-4">
+    <div className="d-flex flex-column min-vh-100">
+      {!["/login", "/register"].includes(location.pathname) && <Navbar />}
+      <main
+        style={{
+          paddingTop: !["/login", "/register"].includes(location.pathname)
+            ? "56px"
+            : "0",
+        }}
+      >
         <Routes>
-          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/articoli" element={<ArticoliList />} />
-          <Route path="/articolo/:id" element={<ArticoloDetail />} />
-          <Route element={<PrivateRoute />}></Route>
+          <Route path="/register" element={<Register />} />
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/articoli" element={<ArticoliList />} />
+            <Route path="/articolo/:id" element={<ArticoloDetail />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
         </Routes>
-        <ToastContainer position="bottom-right" autoClose={3000} />
-      </div>
+      </main>
+      {!["/login", "/register"].includes(location.pathname) && <Footer />}
+      <ToastContainer />
     </div>
   );
 };

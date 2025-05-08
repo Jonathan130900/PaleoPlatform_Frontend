@@ -20,13 +20,19 @@ const CommentiForm: React.FC<CommentiFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const token = getAuthToken();
+
+    if (!token) {
+      toast.error("Per favore accedi per commentare");
+      return;
+    }
+
     if (!contenuto.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
-    const tempId = Date.now(); // Temporary ID for optimistic update
+    const tempId = Date.now();
 
     try {
-      // 1. Optimistic update
       const optimisticComment: Commento = {
         id: tempId,
         contenuto,
@@ -39,11 +45,6 @@ const CommentiForm: React.FC<CommentiFormProps> = ({
       };
 
       dispatch(addComment(optimisticComment));
-      toast.success("Commento aggiunto!");
-
-      // 2. Submit to server
-      const token = getAuthToken();
-      if (!token) throw new Error("Not authenticated");
 
       const response = await fetch(`/api/Commenti/articolo/${articoloId}`, {
         method: "POST",
@@ -56,17 +57,16 @@ const CommentiForm: React.FC<CommentiFormProps> = ({
 
       if (!response.ok) throw new Error(await response.text());
 
-      // 3. Refresh comments
-      const updatedComments = await fetchComments(articoloId);
+      const updatedComments = await fetchComments(articoloId)();
       dispatch(setComments(updatedComments));
-
       setContenuto("");
       onSuccess?.();
+      toast.success("Commento pubblicato!");
     } catch (error) {
       dispatch(removeComment(tempId));
-      const errorMessage =
-        error instanceof Error ? error.message : "Errore durante l'invio";
-      toast.error(errorMessage);
+      toast.error(
+        error instanceof Error ? error.message : "Errore durante l'invio"
+      );
     } finally {
       setIsSubmitting(false);
     }

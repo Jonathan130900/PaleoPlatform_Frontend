@@ -1,45 +1,31 @@
 import axios from "axios";
-import { refreshToken } from "./actions/authAction";
+import { logout } from "./actions/authAction";
+import { store } from "./redux/store";
 
-const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-});
-
-instance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      const newToken = await refreshToken();
-      if (newToken) {
-        localStorage.setItem("token", newToken);
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        return instance(originalRequest);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
-
-const apiBaseURL = "https://localhost:7224/api";
-const staticBaseURL = "https://localhost:7224";
+const apiBaseURL = import.meta.env.VITE_API_URL || "https://localhost:7224/api";
 
 const axiosInstance = axios.create({
   baseURL: apiBaseURL,
 });
 
-export const staticFilesInstance = axios.create({
-  baseURL: staticBaseURL,
-  responseType: "blob",
-});
-
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("jwtToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("jwtToken");
+      await logout()(store.dispatch);
+      window.location.href = "/login?sessionExpired=true";
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default axiosInstance;

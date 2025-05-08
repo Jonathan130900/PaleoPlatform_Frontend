@@ -1,38 +1,22 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginUtente } from "../actions/authAction";
-import { AppDispatch } from "../redux/store";
+import React, { useState, FormEvent } from "react";
+import { Link } from "react-router-dom";
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const success = await loginUtente(email, password)(dispatch);
-      if (success) {
-        navigate("/");
-      }
-    } catch {
-      setError("Email o password non validi");
-    } finally {
-      setLoading(false);
-    }
+    // Add your registration logic here
+    console.log({ email, username, password });
   };
 
   return (
     <div className="container-fluid vh-100">
       <div className="row h-100">
-        {/* Left Side - Brand Section */}
+        {/* Left Side - Brand Section (same as login) */}
         <div className="col-md-6 d-none d-md-flex bg-dark text-white justify-content-center align-items-center">
           <div className="text-center p-5">
             <Link
@@ -47,17 +31,12 @@ const Login: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
+        {/* Right Side - Registration Form */}
         <div className="col-md-6 d-flex justify-content-center align-items-center">
           <div className="w-75" style={{ maxWidth: "400px" }}>
-            <h2 className="mb-4">Accedi al tuo account</h2>
-
-            {error && (
-              <div className="alert alert-danger py-2 text-center">{error}</div>
-            )}
-
+            <h2 className="mb-4">Crea un account</h2>
             <form
-              onSubmit={handleLogin}
+              onSubmit={handleRegister}
               className="needs-validation"
               noValidate
             >
@@ -75,7 +54,21 @@ const Login: React.FC = () => {
                 />
               </div>
 
-              <div className="mb-4">
+              <div className="mb-3">
+                <label htmlFor="username" className="form-label">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  className="form-control py-2"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
                 <label htmlFor="password" className="form-label">
                   Password
                 </label>
@@ -89,13 +82,23 @@ const Login: React.FC = () => {
                 />
               </div>
 
+              <div className="mb-4">
+                <label htmlFor="confirmPassword" className="form-label">
+                  Conferma Password
+                </label>
+                <input
+                  type="password"
+                  className="form-control py-2"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+
               <div className="d-grid mb-3">
-                <button
-                  type="submit"
-                  className="btn btn-primary py-2 fw-bold"
-                  disabled={loading}
-                >
-                  {loading ? "Accedendo..." : "Accedi"}
+                <button type="submit" className="btn btn-primary py-2 fw-bold">
+                  Registrati
                 </button>
               </div>
 
@@ -103,12 +106,12 @@ const Login: React.FC = () => {
 
               <div className="text-center">
                 <p className="text-muted">
-                  Non hai un account?{" "}
+                  Hai già un account?{" "}
                   <Link
-                    to="/register"
+                    to="/login"
                     className="text-primary fw-bold text-decoration-none"
                   >
-                    Registrati
+                    Accedi
                   </Link>
                 </p>
               </div>
@@ -120,4 +123,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;

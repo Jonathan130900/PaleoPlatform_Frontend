@@ -11,7 +11,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   loading: false,
-  isAuthenticated: false,
+  isAuthenticated: localStorage.getItem("jwtToken") !== null, // Initialize from localStorage
 };
 
 const authSlice = createSlice({
@@ -40,9 +40,10 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.loading = false;
     },
-    logout(state) {
+    logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
+      state.loading = false;
     },
     addComment(state, action: PayloadAction<Commento>) {
       if (state.user) {

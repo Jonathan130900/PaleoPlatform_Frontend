@@ -18,7 +18,7 @@ const Home = () => {
 
   return (
     <div className="container py-5">
-      <h1 className="mb-4 text-center">🦖 Ultimi Articoli</h1>
+      <h1 className="mb-4 text-center">Ultimi Articoli</h1>
       {loading && (
         <div className="text-center my-5">
           <div className="spinner-border text-primary" role="status"></div>
