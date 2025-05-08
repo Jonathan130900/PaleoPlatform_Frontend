@@ -1,54 +1,31 @@
-# React + TypeScript + Vite
+# 🦖 PaleoPlatform – Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Descrizione
 
-Currently, two official plugins are available:
+Il frontend di **PaleoPlatform** è un'interfaccia utente moderna e responsiva sviluppata con **React**, **TypeScript**, e **Redux Toolkit**. Il progetto è pensato per offrire un'esperienza utente fluida e intuitiva su una piattaforma dedicata alla divulgazione scientifica in ambito paleontologico.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+L’obiettivo principale è fornire un punto d'incontro digitale dove appassionati e studiosi possano consultare articoli, partecipare a discussioni, acquistare merchandising tematico e scoprire eventi legati al mondo dei fossili e della paleontologia.
 
-## Expanding the ESLint configuration
+## Tecnologie Utilizzate
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- ⚛️ **React** – Libreria per la costruzione di interfacce utente.
+- 🟦 **TypeScript** – Superset di JavaScript per una programmazione più robusta e tipizzata.
+- 🧠 **Redux Toolkit** – Gestione centralizzata dello stato dell’applicazione.
+- 🚏 **React Router** – Routing client-side.
+- 🎨 **Bootstrap** – Framework CSS per uno stile responsive e accessibile.
+- 🔗 **Axios** – Per effettuare richieste HTTP al backend.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Funzionalità Principali
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- Navigazione tra le sezioni principali: articoli, community, eventi, prodotti.
+- Visualizzazione degli articoli con commenti e sistema di votazione.
+- Autenticazione e gestione dei ruoli (Utente, Moderatore, Amministratore).
+- Discussioni in stile Reddit con risposte annidate.
+- Sezione shop con prodotti a tema paleontologico.
+- Sezione eventi con dettagli e gestione prenotazioni.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Note
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Il frontend si connette a un backend ASP.NET Core tramite REST API. Le funzionalità variano a seconda del ruolo dell'utente autenticato.
+Link alla repository del backend: https://github.com/Jonathan130900/PaleoPlatform_Backend
+
