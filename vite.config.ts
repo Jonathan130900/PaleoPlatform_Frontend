@@ -1,11 +1,19 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
   server: {
     proxy: {
+      "/api": {
+        target: "https://localhost:7224",
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on("proxyReq", (proxyReq) => {
+            // Forward cookies
+            proxyReq.setHeader("Origin", "http://localhost:5173");
+          });
+        },
+      },
       "/uploads": {
         target: "https://localhost:7224",
         changeOrigin: true,

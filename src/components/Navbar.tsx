@@ -4,7 +4,7 @@ import { logout } from "../redux/authSlice";
 import type { RootState } from "../redux/store";
 
 const Navbar = () => {
-  const { username, isAuthenticated } = useSelector(
+  const { user, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
   );
   const dispatch = useDispatch();
@@ -27,7 +27,9 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <span className="navbar-text me-2">Ciao, {username}</span>
+              <span className="navbar-text me-2">
+                Ciao, <span className="fw-bold">{user?.username}</span>
+              </span>
               <button
                 className="btn btn-danger"
                 onClick={() => dispatch(logout())}

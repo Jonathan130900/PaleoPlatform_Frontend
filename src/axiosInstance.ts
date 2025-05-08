@@ -1,4 +1,26 @@
 import axios from "axios";
+import { refreshToken } from "./actions/authAction";
+
+const instance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
+instance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const newToken = await refreshToken();
+      if (newToken) {
+        localStorage.setItem("token", newToken);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return instance(originalRequest);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 const apiBaseURL = "https://localhost:7224/api";
 const staticBaseURL = "https://localhost:7224";
