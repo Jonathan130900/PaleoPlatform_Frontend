@@ -4,6 +4,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
+
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Login from "./components/Login";
@@ -15,6 +16,9 @@ import Register from "./components/Register";
 import Footer from "./components/Footer";
 import { loginSuccess } from "./redux/authSlice";
 import { DecodedToken } from "./types/DecodedToken";
+import CreaArticolo from "./components/CreaArticolo";
+import RequireAuth from "./components/RequireAuth";
+import ModificaArticolo from "./components/ModificaArticolo";
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
@@ -56,13 +60,33 @@ const App: React.FC = () => {
     <div className="d-flex flex-column min-vh-100">
       {!["/login", "/register"].includes(location.pathname) && <Navbar />}
       <main
+        className="flex-grow-1"
         style={{
-          paddingTop: !["/login", "/register"].includes(location.pathname)
-            ? "56px"
+          paddingTop: ["/login", "/register"].includes(location.pathname)
+            ? "0"
+            : "80px",
+          paddingBottom: ["/login", "/register"].includes(location.pathname)
+            ? "0"
             : "0",
         }}
       >
         <Routes>
+          <Route
+            path="/crea-articolo"
+            element={
+              <RequireAuth roles={["Amministratore", "Moderatore"]}>
+                <CreaArticolo />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/modifica-articolo/:id"
+            element={
+              <RequireAuth roles={["Amministratore", "Moderatore"]}>
+                <ModificaArticolo />
+              </RequireAuth>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route element={<MainLayout />}>

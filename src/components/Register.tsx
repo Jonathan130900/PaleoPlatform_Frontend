@@ -1,5 +1,7 @@
 import React, { useState, FormEvent } from "react";
 import { Link } from "react-router-dom";
+import PaleoLogoWithText from "../assets/PaleoPlatform logo reference.svg";
+import { paleoTheme } from "../styles/theme";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -17,16 +19,20 @@ const Register: React.FC = () => {
     <div className="container-fluid vh-100">
       <div className="row h-100">
         {/* Left Side - Brand Section (same as login) */}
-        <div className="col-md-6 d-none d-md-flex bg-dark text-white justify-content-center align-items-center">
+        <div
+          className="col-md-6 d-none d-md-flex justify-content-center align-items-center"
+          style={{ backgroundColor: "#FFEDDB" }}
+        >
           <div className="text-center p-5">
             <Link
               to="/"
               className="text-decoration-none text-white text-center"
             >
-              <h1 className="display-3 fw-bold mb-4">PaleoPlatform</h1>
-              <p className="lead">
-                Riscopri il passato, connettiti con il presente
-              </p>
+              <img
+                src={PaleoLogoWithText}
+                alt="Logo"
+                style={{ width: "800px", height: "auto" }}
+              />
             </Link>
           </div>
         </div>
@@ -97,7 +103,14 @@ const Register: React.FC = () => {
               </div>
 
               <div className="d-grid mb-3">
-                <button type="submit" className="btn btn-primary py-2 fw-bold">
+                <button
+                  type="submit"
+                  className="btn py-2 fw-bold"
+                  style={{
+                    backgroundColor: paleoTheme.colors.lightAccent,
+                    color: paleoTheme.colors.primary,
+                  }}
+                >
                   Registrati
                 </button>
               </div>
@@ -109,7 +122,10 @@ const Register: React.FC = () => {
                   Hai già un account?{" "}
                   <Link
                     to="/login"
-                    className="text-primary fw-bold text-decoration-none"
+                    className="fw-bold text-decoration-none"
+                    style={{
+                      color: paleoTheme.colors.primary,
+                    }}
                   >
                     Accedi
                   </Link>

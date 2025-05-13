@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
+import { paleoTheme } from "../styles/theme";
 
 const MainLayout: React.FC = () => {
   useEffect(() => {
@@ -20,7 +21,14 @@ const MainLayout: React.FC = () => {
   }, []);
 
   return (
-    <div className="container-fluid">
+    <div
+      className="container-fluid pt-4"
+      style={{
+        backgroundColor: paleoTheme.colors.background,
+        minHeight: "100vh",
+        paddingTop: "80px",
+      }}
+    >
       <Outlet />
     </div>
   );

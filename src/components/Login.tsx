@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginUtente } from "../actions/authAction";
 import { AppDispatch } from "../redux/store";
+import PaleoLogoWithText from "../assets/PaleoPlatform logo reference.svg";
+import { paleoTheme } from "../styles/theme";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -33,16 +35,20 @@ const Login: React.FC = () => {
     <div className="container-fluid vh-100">
       <div className="row h-100">
         {/* Left Side - Brand Section */}
-        <div className="col-md-6 d-none d-md-flex bg-dark text-white justify-content-center align-items-center">
+        <div
+          className="col-md-6 d-none d-md-flex text-white justify-content-center align-items-center"
+          style={{ backgroundColor: "#ffeddb" }} // <- Replace with your desired hex/RGB color
+        >
           <div className="text-center p-5">
             <Link
               to="/"
               className="text-decoration-none text-white text-center"
             >
-              <h1 className="display-3 fw-bold mb-4">PaleoPlatform</h1>
-              <p className="lead">
-                Riscopri il passato, connettiti con il presente
-              </p>
+              <img
+                src={PaleoLogoWithText}
+                alt="Logo"
+                style={{ width: "800px", height: "auto" }}
+              />
             </Link>
           </div>
         </div>
@@ -92,7 +98,11 @@ const Login: React.FC = () => {
               <div className="d-grid mb-3">
                 <button
                   type="submit"
-                  className="btn btn-primary py-2 fw-bold"
+                  className="btn btn-primary py-2 fw-bold border-0"
+                  style={{
+                    backgroundColor: paleoTheme.colors.lightAccent,
+                    color: paleoTheme.colors.primary,
+                  }}
                   disabled={loading}
                 >
                   {loading ? "Accedendo..." : "Accedi"}
@@ -106,7 +116,10 @@ const Login: React.FC = () => {
                   Non hai un account?{" "}
                   <Link
                     to="/register"
-                    className="text-primary fw-bold text-decoration-none"
+                    className="fw-bold text-decoration-none"
+                    style={{
+                      color: paleoTheme.colors.primary,
+                    }}
                   >
                     Registrati
                   </Link>

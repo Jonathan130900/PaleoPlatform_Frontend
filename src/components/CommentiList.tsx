@@ -3,8 +3,14 @@ import { RootState } from "../redux/store";
 import CommentiForm from "./CommentiForm";
 import CommentiItem from "./CommentiItem";
 import { toast } from "react-toastify";
+import { paleoTheme } from "../styles/theme";
 
-const CommentiList = ({ articoloId }: { articoloId: number }) => {
+interface CommentiListProps {
+  articoloId: number;
+  onNewComment?: () => void;
+}
+
+const CommentiList = ({ articoloId, onNewComment }: CommentiListProps) => {
   const articolo = useSelector(
     (state: RootState) => state.articoli.articoloDettaglio
   );
@@ -13,27 +19,53 @@ const CommentiList = ({ articoloId }: { articoloId: number }) => {
 
   const handleNewComment = () => {
     toast.success("Commento aggiunto!");
-    // Add refresh logic here if needed
+    if (onNewComment) {
+      onNewComment();
+    }
   };
 
-  // Filter only top-level comments
   const topLevelComments = articolo.commenti.filter(
     (comment) => comment.parentCommentId === null
   );
 
   return (
     <div className="mt-4">
-      <CommentiForm articoloId={articoloId} onSuccess={handleNewComment} />
+      <div
+        className="p-4 mb-4 rounded"
+        style={{
+          backgroundColor: paleoTheme.colors.background,
+          border: paleoTheme.borders.default,
+        }}
+      >
+        <CommentiForm articoloId={articoloId} onSuccess={handleNewComment} />
+      </div>
+
       {topLevelComments.length === 0 ? (
-        <p className="text-muted">Nessun commento. Commenta per primo!</p>
+        <div
+          className="text-center p-4 rounded"
+          style={{
+            backgroundColor: paleoTheme.colors.background,
+            border: paleoTheme.borders.default,
+          }}
+        >
+          <p className="text-muted mb-0">
+            Nessun commento. Commenta per primo!
+          </p>
+        </div>
       ) : (
-        <div className="mt-3">
+        <div
+          className="rounded m-0 p-0"
+          style={{
+            overflow: "hidden",
+          }}
+        >
           {topLevelComments.map((comment) => (
             <CommentiItem
               key={comment.id}
               comment={comment}
               depth={0}
               articoloId={articoloId}
+              onNewReply={handleNewComment}
             />
           ))}
         </div>

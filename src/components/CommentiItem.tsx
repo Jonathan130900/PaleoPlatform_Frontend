@@ -10,17 +10,20 @@ import {
 import { getAuthToken } from "../actions/authAction";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../redux/store";
+import { paleoTheme } from "../styles/theme";
 
 interface CommentiItemProps {
   comment: Commento;
   depth?: number;
   articoloId: number;
+  onNewReply?: () => void;
 }
 
 const CommentiItem: React.FC<CommentiItemProps> = ({
   comment,
   depth = 0,
   articoloId,
+  onNewReply,
 }) => {
   const [replyText, setReplyText] = useState("");
   const [showReplyBox, setShowReplyBox] = useState(false);
@@ -55,6 +58,9 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
         toast.success("Risposta inviata!");
         setReplyText("");
         setShowReplyBox(false);
+        if (onNewReply) {
+          onNewReply();
+        }
       } else if (response.status === 401) {
         if (!getAuthToken()) {
           window.location.href = "/login";
@@ -116,14 +122,29 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
 
   return (
     <div
-      className={`mb-3 ${
-        depth > 0 ? "ps-4 border-start border-secondary" : ""
-      }`}
+      className={`mb-3 ${depth > 0 ? "ps-4 border-start" : ""}`}
+      style={{
+        borderLeftColor: depth > 0 ? paleoTheme.colors.primary : "transparent",
+      }}
     >
-      <div className={`card ${depth > 0 ? "border-0 bg-light" : ""}`}>
+      <div
+        className={`card ${depth > 0 ? "border-0" : ""}`}
+        style={{
+          backgroundColor:
+            depth > 0
+              ? paleoTheme.colors.background
+              : paleoTheme.colors.background,
+          borderColor: paleoTheme.colors.primary,
+        }}
+      >
         <div className="card-body p-3">
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <span className="fw-bold">{comment.userName}</span>
+            <span
+              className="fw-bold"
+              style={{ color: paleoTheme.colors.primary }}
+            >
+              {comment.userName}
+            </span>
             <small className="text-muted">
               {new Date(comment.createdAt).toLocaleDateString("it-IT", {
                 day: "numeric",
@@ -167,7 +188,12 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
               {isVoting ? "..." : comment.downvotes}
             </button>
             <button
-              className="btn btn-sm btn-outline-primary"
+              className="btn btn-sm"
+              style={{
+                backgroundColor: paleoTheme.colors.lightAccent,
+                color: paleoTheme.colors.primary,
+                border: paleoTheme.borders.default,
+              }}
               onClick={() => setShowReplyBox(!showReplyBox)}
               disabled={isSubmitting}
             >
@@ -186,11 +212,16 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
                   placeholder="Scrivi una risposta..."
                   required
                   disabled={isSubmitting}
+                  style={{ borderColor: paleoTheme.colors.primary }}
                 />
               </div>
               <button
                 type="submit"
-                className="btn btn-primary btn-sm"
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: paleoTheme.colors.primary,
+                  color: paleoTheme.colors.white,
+                }}
                 disabled={isSubmitting || !replyText.trim()}
               >
                 {isSubmitting ? "Invio in corso..." : "Invia risposta"}

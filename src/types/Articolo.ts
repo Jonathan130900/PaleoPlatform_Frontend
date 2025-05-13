@@ -3,9 +3,9 @@ export interface Articolo {
   id: number;
   titolo: string;
   contenuto: string;
-  dataPubblicazione: string;
+  dataPubblicazione: string | Date;
   autoreId: string;
-  autoreUserName: string;
+  autoreUserName?: string;
   copertinaUrl: string;
   commenti: Commento[];
 }

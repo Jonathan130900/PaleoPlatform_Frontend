@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { getAuthToken, fetchComments } from "../actions/authAction";
-import { addComment, removeComment, setComments } from "../redux/authSlice";
+import { getAuthToken } from "../actions/authAction";
+import { addComment, removeComment } from "../redux/authSlice";
 import { Commento } from "../types/Commento";
+import axiosInstance from "../axiosInstance";
+import { paleoTheme } from "../styles/theme";
 
 interface CommentiFormProps {
   articoloId: number;
@@ -40,25 +42,40 @@ const CommentiForm: React.FC<CommentiFormProps> = ({
         upvotes: 0,
         downvotes: 0,
         userName: "You",
+        parentCommentId: null,
         articoloId,
         replies: [],
       };
 
       dispatch(addComment(optimisticComment));
 
-      const response = await fetch(`/api/Commenti/articolo/${articoloId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await axiosInstance.post(
+        `/Commenti/articolo/${articoloId}`,
+        {
+          Contenuto: contenuto,
+          ParentCommentId: null,
+          ArticoloId: articoloId,
         },
-        body: JSON.stringify({ Contenuto: contenuto }),
-      });
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-      if (!response.ok) throw new Error(await response.text());
+      const createdComment: Commento = {
+        id: response.data.id,
+        contenuto: response.data.contenuto,
+        createdAt: response.data.createdAt,
+        upvotes: response.data.upvotes,
+        downvotes: response.data.downvotes,
+        userName: response.data.userName,
+        parentCommentId: response.data.parentCommentId,
+        articoloId: response.data.articoloId,
+        replies: [],
+      };
 
-      const updatedComments = await fetchComments(articoloId)();
-      dispatch(setComments(updatedComments));
+      dispatch(removeComment(tempId));
+      dispatch(addComment(createdComment));
+
       setContenuto("");
       onSuccess?.();
       toast.success("Commento pubblicato!");
@@ -83,11 +100,16 @@ const CommentiForm: React.FC<CommentiFormProps> = ({
           placeholder="Scrivi un commento..."
           required
           disabled={isSubmitting}
+          style={{ borderColor: paleoTheme.colors.primary }}
         />
       </div>
       <button
         type="submit"
-        className="btn btn-primary"
+        className="btn"
+        style={{
+          backgroundColor: paleoTheme.colors.primary,
+          color: paleoTheme.colors.white,
+        }}
         disabled={isSubmitting || !contenuto.trim()}
       >
         {isSubmitting ? "Invio in corso..." : "Pubblica commento"}
