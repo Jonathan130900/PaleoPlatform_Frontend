@@ -7,6 +7,7 @@ import type { Articolo } from "../types/Articolo";
 import { Link } from "react-router-dom";
 import Logo from "../assets/PaleoPlatform logo reference.svg";
 import { paleoTheme } from "../styles/theme";
+import ParaSocialIcon from "../assets/PARASOCIALS.svg";
 
 const Home = () => {
   const dispatch = useAppDispatch();
@@ -174,9 +175,9 @@ const Home = () => {
           <div className="row align-items-center">
             <div className="col-lg-6 order-lg-2">
               <img
-                src="/community-image.jpg"
-                alt="Community discussion"
-                className="img-fluid rounded shadow"
+                src={ParaSocialIcon}
+                alt="Discussioni icona"
+                className="img-fluid"
               />
             </div>
             <div className="col-lg-6 order-lg-1">

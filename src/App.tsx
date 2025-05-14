@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -19,6 +18,9 @@ import { DecodedToken } from "./types/DecodedToken";
 import CreaArticolo from "./components/CreaArticolo";
 import RequireAuth from "./components/RequireAuth";
 import ModificaArticolo from "./components/ModificaArticolo";
+import DiscussioniList from "./components/DiscussioniList";
+import DiscussioneDetail from "./components/DiscussioneDetail";
+import CreaDiscussioneModal from "./components/CreaDiscussioneModal";
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
@@ -50,6 +52,7 @@ const App: React.FC = () => {
             ] || ["user"],
           })
         );
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         localStorage.removeItem("jwtToken");
       }
@@ -87,12 +90,27 @@ const App: React.FC = () => {
               </RequireAuth>
             }
           />
+          <Route
+            path="/crea-discussione"
+            element={
+              <RequireAuth>
+                <CreaDiscussioneModal
+                  topics={[]}
+                  onClose={function (): void {
+                    throw new Error("Function not implemented.");
+                  }}
+                />
+              </RequireAuth>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/articoli" element={<ArticoliList />} />
             <Route path="/articolo/:id" element={<ArticoloDetail />} />
+            <Route path="/community" element={<DiscussioniList />} />
+            <Route path="/discussioni/:id" element={<DiscussioneDetail />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

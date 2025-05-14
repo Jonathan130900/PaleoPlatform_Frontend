@@ -14,20 +14,15 @@ const Footer = () => {
       <div className="container">
         <div className="row">
           <div className="col-md-4 mb-3">
-            <Link
-              to="/"
-              className="text-decoration-none text-white text-center"
-            >
-              <img
-                src={PaleoLogoWithText}
-                alt="Logo"
-                style={{
-                  width: "250px",
-                  height: "auto",
-                  filter: "drop-shadow(1px 1px 2px rgba(92, 58, 33, 0.2))",
-                }}
-              />
-            </Link>
+            <img
+              src={PaleoLogoWithText}
+              alt="Logo"
+              style={{
+                width: "250px",
+                height: "auto",
+                filter: "drop-shadow(1px 1px 2px rgba(92, 58, 33, 0.2))",
+              }}
+            />
           </div>
           <div className="col-md-4 mb-3">
             <h5 style={{ color: paleoTheme.colors.primary }}>Quick Links</h5>

@@ -8,12 +8,16 @@ import axiosInstance from "../axiosInstance";
 import { paleoTheme } from "../styles/theme";
 
 interface CommentiFormProps {
-  articoloId: number;
+  articoloId?: number;
+  discussioneId?: number;
+  parentCommentId?: number | null;
   onSuccess?: () => void;
 }
 
 const CommentiForm: React.FC<CommentiFormProps> = ({
   articoloId,
+  discussioneId,
+  parentCommentId = null,
   onSuccess,
 }) => {
   const [contenuto, setContenuto] = useState("");
@@ -35,6 +39,7 @@ const CommentiForm: React.FC<CommentiFormProps> = ({
     const tempId = Date.now();
 
     try {
+      // Create optimistic comment
       const optimisticComment: Commento = {
         id: tempId,
         contenuto,
@@ -42,25 +47,32 @@ const CommentiForm: React.FC<CommentiFormProps> = ({
         upvotes: 0,
         downvotes: 0,
         userName: "You",
-        parentCommentId: null,
+        parentCommentId,
         articoloId,
+        discussioneId,
         replies: [],
       };
 
       dispatch(addComment(optimisticComment));
 
-      const response = await axiosInstance.post(
-        `/Commenti/articolo/${articoloId}`,
-        {
-          Contenuto: contenuto,
-          ParentCommentId: null,
-          ArticoloId: articoloId,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      // Determine the correct endpoint and request body
+      const endpoint = articoloId
+        ? `/Commenti/articolo/${articoloId}`
+        : `/Commenti/discussione/${discussioneId}`;
 
+      const requestBody = {
+        Contenuto: contenuto,
+        ParentCommentId: parentCommentId,
+        ...(articoloId
+          ? { ArticoloId: articoloId }
+          : { DiscussioneId: discussioneId }),
+      };
+
+      const response = await axiosInstance.post(endpoint, requestBody, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Create the final comment from response
       const createdComment: Commento = {
         id: response.data.id,
         contenuto: response.data.contenuto,
@@ -70,6 +82,7 @@ const CommentiForm: React.FC<CommentiFormProps> = ({
         userName: response.data.userName,
         parentCommentId: response.data.parentCommentId,
         articoloId: response.data.articoloId,
+        discussioneId: response.data.discussioneId,
         replies: [],
       };
 

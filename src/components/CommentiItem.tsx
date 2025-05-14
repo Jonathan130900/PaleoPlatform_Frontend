@@ -8,14 +8,13 @@ import {
   BiSolidDownvote,
 } from "react-icons/bi";
 import { getAuthToken } from "../actions/authAction";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../redux/store";
 import { paleoTheme } from "../styles/theme";
 
 interface CommentiItemProps {
   comment: Commento;
   depth?: number;
-  articoloId: number;
+  articoloId?: number;
+  discussioneId?: number;
   onNewReply?: () => void;
 }
 
@@ -23,13 +22,13 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
   comment,
   depth = 0,
   articoloId,
+  discussioneId,
   onNewReply,
 }) => {
   const [replyText, setReplyText] = useState("");
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
-  useDispatch<AppDispatch>();
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +41,12 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
         return;
       }
 
-      const response = await fetch(`/api/Commenti/articolo/${articoloId}`, {
+      // Determine the correct API endpoint based on context
+      const endpoint = articoloId
+        ? `/Commenti/articolo/${articoloId}`
+        : `/Commenti/discussione/${discussioneId}`;
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,9 +62,7 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
         toast.success("Risposta inviata!");
         setReplyText("");
         setShowReplyBox(false);
-        if (onNewReply) {
-          onNewReply();
-        }
+        onNewReply?.();
       } else if (response.status === 401) {
         if (!getAuthToken()) {
           window.location.href = "/login";
@@ -71,7 +73,8 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
         const errorData = await response.json();
         toast.error(errorData.message || "Errore durante l'invio");
       }
-    } catch {
+    } catch (error) {
+      console.error("Error submitting reply:", error);
       toast.error("Errore di connessione");
     } finally {
       setIsSubmitting(false);
@@ -89,7 +92,7 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
         return;
       }
 
-      const response = await fetch("/api/Commenti/vote", {
+      const response = await fetch("/Commenti/vote", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -113,7 +116,8 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
         const errorData = await response.json();
         toast.error(errorData.message || "Errore durante il voto");
       }
-    } catch {
+    } catch (error) {
+      console.error("Error voting:", error);
       toast.error("Errore di connessione");
     } finally {
       setIsVoting(false);
@@ -130,10 +134,7 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
       <div
         className={`card ${depth > 0 ? "border-0" : ""}`}
         style={{
-          backgroundColor:
-            depth > 0
-              ? paleoTheme.colors.background
-              : paleoTheme.colors.background,
+          backgroundColor: paleoTheme.colors.background,
           borderColor: paleoTheme.colors.primary,
         }}
       >
@@ -239,6 +240,8 @@ const CommentiItem: React.FC<CommentiItemProps> = ({
               comment={reply}
               depth={depth + 1}
               articoloId={articoloId}
+              discussioneId={discussioneId}
+              onNewReply={onNewReply}
             />
           ))}
         </div>
